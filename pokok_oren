@@ -1,0 +1,90 @@
+# This is how you define your own custom exception classes
+class NoOrangesError < StandardError
+end
+
+class OrangeTree
+  attr_reader :age, :height
+  
+  def initialize
+    @age = 0
+    @height = 0
+    @num_of_oranges = []
+    puts "An orange tree is planted with #{@age} years old, #{@height} feet and #{@num_of_oranges} oranges."
+  end
+  
+  def age!
+    if @age < 21
+      @age += 1
+      @height = @height >= 250 ? @height : @height + 1 + rand(10)
+    else  
+      @height = 0
+    end
+
+    if @age > 5 && !dead?
+      rand(3..10).times {  @num_of_oranges << Orange.new(rand(1..4)) }
+    end
+  end
+
+  def dead?
+    @age >= 21
+  end
+
+  # Returns +true+ if there are any oranges on the tree, +false+ otherwise
+  def any_oranges?
+    if @num_of_oranges.length > 0
+      return true
+    else
+      return false
+    end
+  end
+
+  # Returns an Orange if there are any
+  # Raises a NoOrangesError otherwise
+  def pick_an_orange!
+    raise NoOrangesError, "This tree has no oranges" unless self.any_oranges?
+    # orange-picking logic goes here
+    @num_of_oranges.pop
+  end
+end
+
+class Orange
+  attr_reader :diameter
+  # Initializes a new Orange with diameter +diameter+
+  def initialize(diameter)
+    @diameter = diameter
+  end
+
+end
+
+#######################################################################
+## Driver code:
+
+    tree = OrangeTree.new
+
+    tree.age! until tree.any_oranges?
+
+    puts "Tree is #{tree.age} years old and #{tree.height} feet tall"
+
+    until tree.dead?
+      basket = []
+
+      # It places the oranges in the basket
+      while tree.any_oranges?
+        basket << tree.pick_an_orange!
+      end
+
+      # It's up to you to calculate the average diameter for this harvest.
+      sum = 0
+      basket.each {|orange| sum += orange.diameter}
+      avg_diameter = sum/basket.length
+
+      puts "Year #{tree.age} Report"
+      puts "Tree height: #{tree.height} feet"
+      puts "Harvest: #{basket.size} oranges with an average diameter of #{avg_diameter} inches"
+      puts ""
+
+      # Age the tree another year
+      tree.age!
+    end
+
+    puts "Alas, the tree, she is dead!"
